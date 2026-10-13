@@ -1,0 +1,46 @@
+# Run the radio app in your own compose stack.
+#
+# THREE THINGS MUST COME FROM THE HOST, because a container cannot supply any of them:
+#   1. THE DEVICE. The kernel must already drive the radio stick and expose /dev/radio0 on the
+#      host. A container cannot load a kernel module.
+#   2. THE AUDIO SERVER. The socket below is the host's PipeWire/PulseAudio. The app asks THAT
+#      server to route the radio to your speakers, so the sound comes out of the host.
+#   3. THE COOKIE, if your audio server authenticates clients with one.
+services:
+  radio:
+    build: .
+    # image: ghcr.io/<you>/fm-radio:latest    # or build it yourself, as above
+    container_name: fm-radio
+    ports:
+      - "${RADIO_PORT:-8150}:8150"
+    devices:
+      # the tuner. If your stick lands on a different node, set RADIO_DEVICE.
+      # 🔴 DOCKER REFUSES TO START AT ALL WHEN THIS NODE DOES NOT EXIST — measured: `error
+      # gathering device information while adding custom device "/dev/radio0": no such file or
+      # directory`. So on a machine with no radio attached, comment this line out to look at the
+      # page (it will say there is no radio); with a radio attached, leave it in.
+      - "${RADIO_DEVICE:-/dev/radio0}:/dev/radio0"
+    environment:
+      RADIO_DEVICE: "${RADIO_DEVICE:-/dev/radio0}"
+      # 🔴 LEAVE THIS EMPTY AND THE INPUT IS FOUND FOR YOU. The PipeWire source name carries the
+      # device's USB id on some systems and not on others, and it changes when the stick is
+      # plugged into a different port — measured on the machine this was built on: unplugging the
+      # radio removed the source, and the audio server silently moved the capture to the built-in
+      # microphone. Named here, it must match `pactl list short sources` exactly.
+      RADIO_SOURCE: "${RADIO_SOURCE:-}"
+      RADIO_PORT: "8150"
+      RADIO_BIND: "0.0.0.0"          # mandatory in a container: a published port arrives from
+                                     # outside the container's loopback, so 127.0.0.1 cannot be
+                                     # reached. It is the compose publish list that decides what
+                                     # is exposed, not this.
+      RADIO_DATA: /data
+      PULSE_SERVER: "unix:/pulse/native"
+      XDG_RUNTIME_DIR: /pulse
+    volumes:
+      - radio-data:/data                                   # saved stations, the last scan
+      - "${XDG_RUNTIME_DIR:-/run/user/1000}/pulse/native:/pulse/native"
+      - "${HOME}/.config/pulse/cookie:/root/.config/pulse/cookie:ro"
+    restart: unless-stopped
+
+volumes:
+  radio-data:
