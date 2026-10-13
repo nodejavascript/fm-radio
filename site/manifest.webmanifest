@@ -1,0 +1,15 @@
+{
+  "name": "fm-radio.nodejavascript.com",
+  "short_name": "FM radio",
+  "description": "A local web page for a USB FM radio: tune, scan the band with a 19 kHz stereo-pilot test, keep the stations you like.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#140f08",
+  "theme_color": "#f5a524",
+  "icons": [
+    { "src": "/img/favicon-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/img/favicon-32.png", "sizes": "32x32", "type": "image/png" },
+    { "src": "/img/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

@@ -1,0 +1,773 @@
+/* fm-radio.nodejavascript.com — the family's shell, this site's own colour, dial and drawing.
+ *
+ * THE FAMILY RULES THIS FILE OBEYS, so a later agent does not have to rediscover them:
+ *   · the brand bar is the shared one — full width, sticky, this site's near-black at 0.82 through
+ *     blur(14px), a hairline beneath it, the family mark and the site's own label. No nav.
+ *   · the footer is brand · links · © 2026 <full domain>, with the cookie door in the links line.
+ *   · a GitHub link carries a tiny star on its LEFT, in the page's own yellow, and ONLY the star.
+ *   · there is no privacy.html — the policy is a #privacy section of this page.
+ *   · the theme colour, the background and the DRAWING are this site's own and are not shared.
+ */
+
+:root {
+  --theme: #f5a524; /* amber — the dial lamp. Not used by any other site in the family. */
+  --bg: #140f08; /* warm near-black, distinct from the family's cool darks */
+  --ink: #f7f0e4;
+  --muted: #a3907a;
+  --line: rgba(245, 165, 36, 0.16);
+  --hairline: rgba(245, 165, 36, 0.22);
+  --card: rgba(34, 25, 13, 0.62);
+  --yellow: #fbbf24; /* the family's GitHub-star colour, read from here and never typed in markup */
+  --consent-height: 0px;
+}
+
+/* 🔴 A CLASS THAT DECLARES `display` BEATS THE ATTRIBUTE, so `[hidden]` is stated with weight.
+   The gate swaps the question for the panel by setting `.hidden`, and the user-agent rule for
+   `[hidden]` is a default that any author rule overrides. */
+[hidden] {
+  display: none !important;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding-bottom: var(--consent-height); /* the bar is fixed; the page must not hide behind it */
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(1100px 520px at 78% -6%, rgba(245, 165, 36, 0.13), transparent 72%),
+    linear-gradient(158deg, rgba(180, 105, 12, 0.12), transparent 58%),
+    linear-gradient(18deg, rgba(120, 70, 8, 0.1), transparent 52%);
+  background-attachment: fixed;
+  color: var(--ink);
+  font: 16px/1.65 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 🔴 THE ABSTRACT — THIS SITE'S OWN DRAWING, AND IT IS A DRAWING RATHER THAN A WASH: a tuning
+   scale. Two layers of fine vertical marks with taller ones every fifth, sitting in the lower
+   third of the window like the dial of a receiver, on its OWN fixed layer. It cannot be a
+   background on <body>, because the only thing that fades a background image is a mask, and a
+   mask on <body> would fade the page's colour and its glows with it. z-index below the content,
+   pointer-events off so it can never take a click. */
+.dial {
+  position: fixed;
+  inset: auto 0 0 0;
+  height: min(46vh, 420px);
+  z-index: 0;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-image:
+    /* the fine scale */
+    repeating-linear-gradient(90deg, rgba(245, 165, 36, 0.22) 0 1px, transparent 1px 15px),
+    /* the taller marks every fifth tick */
+    repeating-linear-gradient(90deg, rgba(245, 165, 36, 0.3) 0 1px, transparent 1px 75px);
+  background-size:
+    100% 62px,
+    100% 118px;
+  background-position:
+    0 bottom,
+    0 bottom;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 42%, rgba(0, 0, 0, 0.7) 74%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0, #000 42%, rgba(0, 0, 0, 0.7) 74%, transparent 100%);
+  opacity: 0.5;
+}
+
+/* the needle: one bright line where a tuner's pointer would stand, with the lamp's glow on it.
+   It is bounded to the DIAL BAND rather than run down the whole window — measured on the first
+   render, where a full-height line crossed the cards and the table and read as a stray mark
+   instead of as a pointer on a scale. */
+.dial-needle {
+  position: fixed;
+  bottom: 0;
+  height: min(46vh, 420px);
+  left: 27%;
+  width: 2px;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(245, 165, 36, 0.55) 45%, rgba(245, 165, 36, 0.7) 100%);
+  box-shadow: 0 0 26px 6px rgba(245, 165, 36, 0.16);
+  opacity: 0.6;
+}
+
+main,
+.top,
+.site-footer {
+  position: relative;
+  z-index: 1;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--theme);
+  color: #1a1103;
+  padding: 10px 16px;
+  border-radius: 0 0 8px 0;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.skip:focus {
+  left: 0;
+  z-index: 30;
+}
+
+a {
+  color: var(--theme);
+}
+
+/* ------------------------------------------------------------------ brand bar --- */
+.top {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  background: rgba(20, 15, 8, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.brand .mark {
+  display: inline-flex;
+  color: var(--theme);
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.brand-text b {
+  font-size: 15px;
+  letter-spacing: 0.01em;
+}
+
+.brand-text small {
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ----------------------------------------------------------------------- page --- */
+main {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 20px 40px;
+}
+
+section {
+  padding: 42px 0 8px;
+}
+
+.hero {
+  padding-top: 54px;
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  color: var(--theme);
+  font-size: 12.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0 0 16px;
+  font-size: clamp(1.85rem, 4.4vw, 3rem);
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  max-width: 22ch;
+}
+
+h2 {
+  margin: 0 0 12px;
+  font-size: clamp(1.3rem, 2.3vw, 1.7rem);
+  letter-spacing: -0.01em;
+}
+
+h3 {
+  margin: 22px 0 8px;
+  font-size: 1.03rem;
+}
+
+.lede {
+  margin: 0 0 22px;
+  font-size: 1.09rem;
+  color: #ecdfc9;
+  max-width: 68ch;
+}
+
+.lede strong {
+  color: var(--ink);
+}
+
+.body {
+  margin: 0 0 14px;
+  max-width: 74ch;
+}
+
+.body.small,
+.small {
+  font-size: 14.5px;
+  color: var(--muted);
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.92em;
+  background: rgba(245, 165, 36, 0.09);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 1px 5px;
+}
+
+.cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 30px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 11px 18px;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.btn:hover {
+  border-color: var(--theme);
+}
+
+.btn.primary {
+  background: var(--theme);
+  border-color: var(--theme);
+  color: #1a1103;
+}
+
+/* ------------------------------------------------------------ the band (dial) --- */
+.band {
+  margin: 0 0 26px;
+}
+
+.scale {
+  position: relative;
+  height: 104px;
+  border-bottom: 2px solid var(--hairline);
+  background-image: repeating-linear-gradient(90deg, rgba(245, 165, 36, 0.14) 0 1px, transparent 1px 34px);
+  background-position: 0 bottom;
+  background-size: 100% 16px;
+  background-repeat: no-repeat;
+}
+
+.scale i {
+  position: absolute;
+  bottom: 0;
+  width: 3px;
+  height: 40px;
+  transform: translateX(-50%);
+  border-radius: 2px;
+  background: linear-gradient(180deg, transparent, var(--theme));
+  box-shadow: 0 0 14px rgba(245, 165, 36, 0.35);
+}
+
+.scale i:hover {
+  height: 60px;
+}
+
+.scale-x {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 11.5px;
+  letter-spacing: 0.1em;
+}
+
+figcaption {
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 14.5px;
+  max-width: 70ch;
+}
+
+figcaption b {
+  color: var(--ink);
+}
+
+/* ---------------------------------------------------------------------- cards --- */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.cards article {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px 18px 6px;
+}
+
+.cards h3 {
+  margin-top: 0;
+  color: var(--theme);
+}
+
+.cards p {
+  margin: 0 0 14px;
+  color: #e6d9c4;
+  font-size: 15px;
+}
+
+.ticks {
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ticks li {
+  position: relative;
+  padding: 0 0 10px 26px;
+  max-width: 74ch;
+}
+
+.ticks li::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 0.62em;
+  width: 9px;
+  height: 2px;
+  background: var(--theme);
+  border-radius: 2px;
+}
+
+/* ----------------------------------------------------------------------- code --- */
+.code {
+  position: relative;
+  margin: 10px 0 12px;
+}
+
+.code pre {
+  margin: 0;
+  padding: 16px 18px;
+  overflow-x: auto;
+  background: rgba(28, 20, 10, 0.85);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  font: 13.4px/1.6 ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  color: #f0e3cc;
+}
+
+.code pre code {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: inherit;
+}
+
+.copy {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  padding: 5px 11px;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  background: rgba(20, 15, 8, 0.9);
+  color: var(--ink);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.copy:hover {
+  border-color: var(--theme);
+  color: var(--theme);
+}
+
+/* ---------------------------------------------------------------------- table --- */
+.tablewrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14.8px;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+th {
+  background: rgba(245, 165, 36, 0.07);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* ------------------------------------------------------------- the station list ---
+   One station per line, in frequency order, the frequency column tabular so the decimal points
+   line up down the page — the same shape the program's own page uses, which is the point. */
+.stations {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 16px 0 6px;
+}
+
+.strow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 9px 13px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--card);
+  font-size: 15px;
+}
+
+.strow.hi {
+  border-color: var(--hairline);
+}
+
+.fq {
+  width: 62px;
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--theme);
+}
+
+.cs {
+  min-width: 92px;
+  flex: none;
+  font-weight: 600;
+}
+
+.gn {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.gn i {
+  font-style: normal;
+  font-size: 12.5px;
+  padding: 2px 9px;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  color: var(--muted);
+}
+
+.ev {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.pl {
+  min-width: 108px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* ------------------------------------------------------------------------ faq --- */
+.faq {
+  margin: 16px 0 0;
+  max-width: 78ch;
+}
+
+.faq dt {
+  font-weight: 600;
+  margin-top: 16px;
+  color: var(--theme);
+}
+
+.faq dd {
+  margin: 4px 0 0;
+  color: #e6d9c4;
+}
+
+/* --------------------------------------------------------------------- footer --- */
+.site-footer {
+  border-top: 1px solid var(--hairline);
+  padding: 26px 20px 34px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.footer-brand .mark {
+  display: inline-flex;
+  color: var(--theme);
+}
+
+.footer-brand a {
+  color: var(--theme);
+}
+
+.footer-links {
+  margin: 0 0 6px;
+}
+
+.footer-links a,
+.footer-links button {
+  color: var(--ink);
+}
+
+/* 🔴 THE GITHUB STAR — a star to the LEFT of a GitHub link, in the page's own yellow, and ONLY
+   the star is yellow, never the address beside it. `display: inline-block` is load-bearing: a
+   global `svg { display: block }` elsewhere would drop the star onto its own line. */
+.gh-star {
+  display: inline-block;
+  width: 0.85em;
+  height: 0.85em;
+  margin-right: 5px;
+  flex: none;
+  vertical-align: -0.05em;
+  fill: var(--yellow);
+}
+
+.linkbtn {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.copyright {
+  margin: 0;
+  font-size: 13px;
+}
+
+/* --------------------------------------------------------------- consent bar --- */
+.consent {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  padding: 14px 20px;
+  background: rgba(18, 13, 7, 0.97);
+  border-top: 1px solid var(--hairline);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  font-size: 14.5px;
+}
+
+.consentAsk,
+.consentPrefs {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.consentAsk {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.consentTitle {
+  font-size: 16px;
+  margin: 0;
+}
+
+.consentText {
+  margin: 0;
+  color: #ecdfc9;
+}
+
+.consentHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.consentClose {
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.consentList {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0;
+  display: grid;
+  gap: 10px;
+}
+
+.consentRow {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.consentRowName {
+  margin: 0;
+  font-weight: 600;
+}
+
+.consentRowWhy {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 13.5px;
+  max-width: 68ch;
+}
+
+/* the required row is NOT a switch — it is shaped like a label, so it cannot invite a press */
+.consentAlways {
+  flex: none;
+  align-self: center;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  color: var(--muted);
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.consentSwitch {
+  flex: none;
+  width: 46px;
+  height: 26px;
+  border-radius: 99px;
+  border: 1px solid var(--hairline);
+  background: rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  position: relative;
+}
+
+.consentSwitch .consentDot {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: transform 0.14s ease, background 0.14s ease;
+}
+
+.consentSwitch[aria-checked="true"] {
+  border-color: var(--theme);
+}
+
+.consentSwitch[aria-checked="true"] .consentDot {
+  transform: translateX(20px);
+  background: var(--theme);
+}
+
+.consentActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.consentActions button {
+  font: inherit;
+  font-weight: 600;
+  padding: 9px 16px;
+  border-radius: 9px;
+  border: 1px solid var(--hairline);
+  background: var(--card);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.consentActions button.primary {
+  background: var(--theme);
+  border-color: var(--theme);
+  color: #1a1103;
+}
+
+@media (max-width: 640px) {
+  .ev {
+    margin-left: 0;
+    width: 100%;
+  }
+  .pl {
+    min-width: 0;
+  }
+  .consentRow {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

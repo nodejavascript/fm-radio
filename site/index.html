@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>fm-radio.nodejavascript.com</title>
+    <meta
+      name="description"
+      content="A local web page for a USB FM radio: it calls a channel a station only when the 19 kHz stereo pilot is really there, so the list stays short."
+    />
+    <link rel="canonical" href="https://fm-radio.nodejavascript.com/" />
+    <meta name="theme-color" content="#f5a524" />
+    <meta name="color-scheme" content="dark" />
+
+    <link rel="icon" type="image/png" sizes="180x180" href="./img/favicon-180.png" />
+    <link rel="icon" type="image/svg+xml" href="./img/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./img/favicon-32.png" />
+    <link rel="icon" href="./img/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./img/apple-touch-icon.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="fm-radio.nodejavascript.com" />
+    <meta property="og:title" content="A station is told from hiss by evidence" />
+    <meta
+      property="og:description"
+      content="A web page for a USB FM radio. It scans the band and calls a channel a station only when the 19 kHz stereo pilot is actually present."
+    />
+    <meta property="og:url" content="https://fm-radio.nodejavascript.com/" />
+    <meta property="og:image" content="https://fm-radio.nodejavascript.com/img/og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="A station is told from hiss by evidence" />
+    <meta
+      name="twitter:description"
+      content="A web page for a USB FM radio. It calls a channel a station only when the 19 kHz stereo pilot is actually there."
+    />
+    <meta name="twitter:image" content="https://fm-radio.nodejavascript.com/img/og.png" />
+
+    <link rel="stylesheet" href="./styles.css" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "SoftwareApplication",
+            "name": "FM radio",
+            "applicationCategory": "MultimediaApplication",
+            "operatingSystem": "Linux (Docker)",
+            "description": "A local web page for a V4L2 USB FM tuner: tune, scan the band with a 19 kHz stereo-pilot test, and keep the stations you like.",
+            "url": "https://fm-radio.nodejavascript.com/",
+            "codeRepository": "https://github.com/nodejavascript/fm-radio",
+            "license": "https://opensource.org/license/mit",
+            "isAccessibleForFree": true,
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CAD" }
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "Why does the scan find fewer stations than my car radio?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Because it only lists a channel when the 19 kHz stereo pilot is actually present. A car radio will happily play a hiss you can sit through; this list is meant to be short and trustworthy rather than long and partly wrong."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Does it send my listening anywhere?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "No. It runs on your own machine, serves one page on your own loopback address, and talks to nothing on the internet. There is no account and no cloud. The only thing on this page that could ever contact anyone is the analytics tag, and it loads only if you allow it."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Which radios does it work with?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Any stick the Linux kernel already exposes as a V4L2 radio device at /dev/radio0 — that is what v4l2-ctl drives. The container cannot load a kernel module, so the driver must already be working on the host."
+                }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to the content</a>
+
+    <!-- the site's own drawing: a tuning scale, faded by a mask so it reads as a
+         dial rather than as a texture. Its own fixed layer, never the body. -->
+    <div class="dial" aria-hidden="true"></div>
+    <div class="dial-needle" aria-hidden="true"></div>
+
+    <header class="top">
+      <a class="brand" href="/" aria-label="fm-radio.nodejavascript.com — home">
+        <span class="mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64" width="26" height="26" focusable="false">
+            <rect width="64" height="64" rx="14" fill="currentColor" opacity="0.08" />
+            <path
+              d="M27 17 L14 32 L27 47 M35 17 L24 47 M37 17 L50 32 L37 47"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
+        <span class="brand-text">
+          <b>FM radio</b>
+          <small>nodejavascript.com</small>
+        </span>
+      </a>
+    </header>
+
+    <main id="main">
+      <section class="hero">
+        <p class="eyebrow">A local web page for a USB FM radio</p>
+        <h1>A station is told from hiss by evidence, not by loudness.</h1>
+        <p class="lede">
+          Plug in an FM stick, open one page, and tune. The scan calls a channel a station
+          <strong>only when its 19&nbsp;kHz stereo pilot is actually present</strong> — static has no pilot
+          at all — and it refuses to call a channel a station because the receiver merely happens to be
+          loud there. That is the whole idea, and it is why the list it produces is short.
+        </p>
+        <p class="cta">
+          <a class="btn primary" href="https://github.com/nodejavascript/fm-radio"
+            ><svg class="gh-star" viewBox="0 0 16 16" aria-hidden="true"
+              ><path
+                d="M8 1.4l1.98 4.2 4.42.5-3.3 3.05.9 4.45L8 11.4l-4 2.2.9-4.45L1.6 6.1l4.42-.5z"
+                ></path></svg
+            >Get the source</a
+          >
+          <a class="btn" href="#run">Run it in a container</a>
+        </p>
+
+        <!-- the real scan, drawn as a dial: one tick per High-reception station
+             the program actually found, positioned on the band it found it on. -->
+        <figure class="band">
+          <div class="scale" role="img" aria-label="The sixteen High-reception stations this scan found, marked across 88 to 108 MHz.">
+            <i style="left: 0.99%" title="88.1 CIND-FM — Toronto, indie rock"></i>
+            <i style="left: 4.95%" title="88.9 CIRV-FM — Toronto, multilingual"></i>
+            <i style="left: 7.92%" title="89.5 CIUT-FM — Toronto, campus radio"></i>
+            <i style="left: 11.88%" title="90.3 CJBC-FM — Toronto, public music (French)"></i>
+            <i style="left: 22.77%" title="92.5 CKIS-FM — Toronto, CHR"></i>
+            <i style="left: 30.69%" title="94.1 CBL-FM — Toronto, public music"></i>
+            <i style="left: 36.63%" title="95.3 CING-FM — Hamilton, adult contemporary"></i>
+            <i style="left: 41.58%" title="96.3 CFMZ-FM — Toronto, classical"></i>
+            <i style="left: 46.53%" title="97.3 CHBM-FM — Toronto, classic hits"></i>
+            <i style="left: 48.51%" title="97.7 CHTZ-FM — St. Catharines, active rock"></i>
+            <i style="left: 50.5%" title="98.1 CHFI-FM — Toronto, adult contemporary"></i>
+            <i style="left: 63.37%" title="100.7 CHIN-FM — Toronto, multilingual"></i>
+            <i style="left: 70.3%" title="102.1 CFNY-FM — Brampton, modern rock"></i>
+            <i style="left: 74.26%" title="102.9 CKLH-FM — Hamilton, adult hits"></i>
+            <i style="left: 77.23%" title="103.5 CIDC-FM — Orangeville, CHR"></i>
+            <i style="left: 99.01%" title="107.9 CJXY-FM — Burlington, active rock"></i>
+          </div>
+          <div class="scale-x" aria-hidden="true">
+            <span>88</span><span>92</span><span>96</span><span>100</span><span>104</span><span>108</span>
+          </div>
+          <figcaption>
+            Every station this scan called <b>High reception</b>, drawn where it was found —
+            16 of the 28 carriers it measured, on an indoor antenna next to a computer.
+            <a href="#list">The list itself is below.</a>
+          </figcaption>
+        </figure>
+      </section>
+
+      <section id="why">
+        <h2>Why the list is short</h2>
+        <p class="body">
+          A scan that ranks by loudness is the easiest thing to write and the least useful: on a real
+          receiver the noise floor is loud too, and a strong station's skirt reaches half a megahertz
+          either side. So this one asks a question with a factual answer instead.
+        </p>
+        <div class="cards">
+          <article>
+            <h3>The 19 kHz pilot is a fact, not an opinion</h3>
+            <p>
+              Every FM stereo transmission carries a pilot tone at 19,000 Hz. Mono broadcast and empty
+              noise carry none. The test measures the pilot against the noise beside it — a locked
+              station reads <b>+20 dB and up</b>, hiss reads <b>+1.8 dB or less</b> — and a channel is
+              only called a station above 15 dB.
+            </p>
+          </article>
+          <article>
+            <h3>Pure tones never make the list</h3>
+            <p>
+              A bare tone or an interfering carrier can be loud and steady and still not be a station.
+              The tone is recorded as evidence, never as the reason: a channel with a carrier and no
+              pilot stays off the list, however strong it sounds.
+            </p>
+          </article>
+          <article>
+            <h3>Two carriers 0.2 MHz apart are measured in turn</h3>
+            <p>
+              This receiver switches between states in stretches of seconds, so carriers measured one
+              at a time are compared against different receivers, not against each other. Nearby
+              carriers are therefore measured <b>taking turns</b>, which is the only way to say which
+              of the two has the transmitter on it.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section id="honest">
+        <h2>The failure it refuses to make</h2>
+        <p class="body">
+          Unplug a USB input and Linux does not report an error — it moves the streams that pointed at
+          it to the <b>default</b> input, which is usually the built-in microphone. That was measured,
+          not imagined: the capture read the room, a loopback played the room back into the speakers
+          at rising volume, and a scan would have swept the room and called it the band.
+        </p>
+        <ul class="ticks">
+          <li>It will not capture or play unless its named input is in the audio server's own list.</li>
+          <li>It removes any loopback still pointing at a source that has gone.</li>
+          <li>A missing radio is reported as a missing radio — never answered with the microphone.</li>
+        </ul>
+      </section>
+
+      <section id="run">
+        <h2>Run it</h2>
+        <p class="body">
+          One Python file, the standard library only, in a small image. Your host supplies three things
+          a container cannot: a working kernel driver for the stick, the audio server it plays through,
+          and that server's socket.
+        </p>
+
+        <h3>With docker compose</h3>
+        <div class="code">
+          <button class="copy" data-copy type="button">Copy</button>
+          <pre><code>cd fm-radio
+docker compose up -d --build
+# open http://127.0.0.1:8150/</code></pre>
+        </div>
+        <p class="body small">
+          Anything you would edit, override from the shell:
+          <code>RADIO_PORT=9000 docker compose up -d</code> ·
+          <code>RADIO_DEVICE=/dev/radio1</code> ·
+          <code>RADIO_SOURCE=alsa_input.usb-…</code>. <code>docker compose down</code> keeps your saved
+          stations; <code>down -v</code> throws them away.
+        </p>
+
+        <h3>With plain docker</h3>
+        <div class="code">
+          <button class="copy" data-copy type="button">Copy</button>
+          <pre><code>docker build -t fm-radio .
+docker run -d --name fm-radio \
+  --device /dev/radio0:/dev/radio0 \
+  -p 8150:8150 \
+  -e RADIO_BIND=0.0.0.0 \
+  -e RADIO_DATA=/data \
+  -e PULSE_SERVER=unix:/pulse/native \
+  -e XDG_RUNTIME_DIR=/pulse \
+  -v fm-radio-data:/data \
+  -v "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/pulse/native:/pulse/native" \
+  --restart unless-stopped \
+  fm-radio</code></pre>
+        </div>
+        <p class="body small">
+          <b><code>RADIO_BIND=0.0.0.0</code> is not optional in a container</b> — a published port
+          arrives from outside the container's own loopback, so an app listening on <code>127.0.0.1</code>
+          is unreachable whatever <code>-p</code> says. If your audio server does not use a cookie, leave
+          the cookie mount out: on a PipeWire machine Docker will create a <b>directory</b> where the file
+          should be, and the server then rejects every client.
+        </p>
+
+        <h3>When it refuses to start</h3>
+        <ul class="ticks">
+          <li>
+            <code>error gathering device information while adding custom device "/dev/radio0"</code> —
+            Docker will not start <b>at all</b> when a device path is missing. Drop <code>--device</code>
+            (compose: comment the line out) to read the page without a radio.
+          </li>
+          <li>
+            The page loads and says there is no radio — the tuner is there but the container cannot see
+            it. Check the host with <code>ls -l /dev/radio0</code> and pass it in.
+          </li>
+          <li>
+            A station is found and nothing plays — the audio socket or the cookie is wrong. Check the
+            host with <code>ls -l ${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/pulse/native</code>.
+          </li>
+        </ul>
+      </section>
+
+      <section id="settings">
+        <h2>Settings</h2>
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr><th>Variable</th><th>Default</th><th>What it does</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>RADIO_DEVICE</code></td><td><code>/dev/radio0</code></td><td>the V4L2 radio device</td></tr>
+              <tr>
+                <td><code>RADIO_SOURCE</code></td><td><em>empty</em></td>
+                <td>
+                  the audio input. Empty means discover it at start-up — the first
+                  <code>alsa_input.usb-</code> entry in <code>pactl list short sources</code>. A
+                  microphone is never chosen.
+                </td>
+              </tr>
+              <tr><td><code>RADIO_PORT</code></td><td><code>8150</code></td><td>the page's port</td></tr>
+              <tr><td><code>RADIO_DATA</code></td><td><code>/data</code></td><td>where saved stations and the last scan are written</td></tr>
+              <tr>
+                <td><code>RADIO_V4L2</code> · <code>RADIO_PAREC</code> · <code>RADIO_PACTL</code></td>
+                <td><code>v4l2-ctl</code> · <code>parec</code> · <code>pactl</code></td>
+                <td>the tool names, if they are not on <code>PATH</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="list">
+        <h2>What it heard here</h2>
+        <p class="body">
+          The sixteen carriers this scan called High reception, in frequency order, exactly as the page
+          lists them — frequency, call sign, city and format, with the rate the pilot held and how far it
+          stood above the noise. Same receiver, same antenna, indoors.
+        </p>
+        <div class="stations">
+          <div class="strow"><span class="fq">88.1</span><span class="cs">CIND-FM</span><span class="gn"><i>indie rock</i></span><span class="ev">held 13/14 · +28.5 dB</span><span class="pl">Toronto</span></div>
+          <div class="strow"><span class="fq">88.9</span><span class="cs">CIRV-FM</span><span class="gn"><i>multilingual</i></span><span class="ev">held 14/14 · +30.5 dB</span><span class="pl">Toronto</span></div>
+          <div class="strow"><span class="fq">89.5</span><span class="cs">CIUT-FM</span><span class="gn"><i>campus radio</i></span><span class="ev">held 11/14 · +32.2 dB</span><span class="pl">Toronto</span></div>
+          <div class="strow"><span class="fq">90.3</span><span class="cs">CJBC-FM</span><span class="gn"><i>public music</i><i>French</i></span><span class="ev">held 14/14 · +32.9 dB</span><span class="pl">Toronto</span></div>
+          <div class="strow"><span class="fq">92.5</span><span class="cs">CKIS-FM</span><span class="gn"><i>CHR</i></span><span class="ev">held 12/14 · +39.8 dB</span><span class="pl">Toronto</span></div>
+          <div class="strow"><span class="fq">94.1</span><span class="cs">CBL-FM</span><span class="gn"><i>public music</i></span><span class="ev">held 14/14 · +52.6 dB</span><span class="pl">Toronto</span></div>
+          <div class="strow hi"><span class="fq">95.3</span><span class="cs">CING-FM</span><span class="gn"><i>adult contemporary</i></span><span class="ev">held 12/14 · +54.2 dB</span><span class="pl">Hamilton</span></div>
+          <div class="strow"><span class="fq">96.3</span><span class="cs">CFMZ-FM</span><span class="gn"><i>classical</i></span><span class="ev">held 14/14 · +36.4 dB</span><span class="pl">Toronto</span></div>
+          <div class="strow"><span class="fq">97.3</span><span class="cs">CHBM-FM</span><span class="gn"><i>classic hits</i></span><span class="ev">held 14/14 · +36.7 dB</span><span class="pl">Toronto</span></div>
+          <div class="strow"><span class="fq">97.7</span><span class="cs">CHTZ-FM</span><span class="gn"><i>active rock</i></span><span class="ev">held 14/14 · +34.5 dB</span><span class="pl">St. Catharines</span></div>
+          <div class="strow"><span class="fq">98.1</span><span class="cs">CHFI-FM</span><span class="gn"><i>adult contemporary</i></span><span class="ev">held 14/14 · +34.0 dB</span><span class="pl">Toronto</span></div>
+          <div class="strow"><span class="fq">100.7</span><span class="cs">CHIN-FM</span><span class="gn"><i>multilingual</i></span><span class="ev">held 14/14 · +39.8 dB</span><span class="pl">Toronto</span></div>
+          <div class="strow"><span class="fq">102.1</span><span class="cs">CFNY-FM</span><span class="gn"><i>modern rock</i></span><span class="ev">held 14/14 · +40.4 dB</span><span class="pl">Brampton</span></div>
+          <div class="strow"><span class="fq">102.9</span><span class="cs">CKLH-FM</span><span class="gn"><i>adult hits</i></span><span class="ev">held 11/14 · +37.4 dB</span><span class="pl">Hamilton</span></div>
+          <div class="strow"><span class="fq">103.5</span><span class="cs">CIDC-FM</span><span class="gn"><i>CHR</i></span><span class="ev">held 14/14 · +32.8 dB</span><span class="pl">Orangeville</span></div>
+          <div class="strow"><span class="fq">107.9</span><span class="cs">CJXY-FM</span><span class="gn"><i>active rock</i></span><span class="ev">held 11/14 · +34.8 dB</span><span class="pl">Burlington</span></div>
+        </div>
+        <p class="body small">
+          Twelve more carriers were heard but not held often enough to be called stations, and they are
+          listed separately as Low reception rather than mixed in. The station table inside the program —
+          frequency, call sign, city, format — was compiled from Wikipedia's lists of radio stations, which
+          is why it is credited under CC BY-SA 4.0.
+        </p>
+      </section>
+
+      <section id="faq">
+        <h2>Questions worth asking</h2>
+        <dl class="faq">
+          <dt>Why does it find fewer stations than my car radio?</dt>
+          <dd>
+            Because it only lists a channel when the pilot is really there. A car radio will play a hiss
+            you can sit through — this list is meant to be short and trustworthy rather than long and
+            partly wrong.
+          </dd>
+          <dt>Does it send my listening anywhere?</dt>
+          <dd>
+            No. It runs on your machine, serves one page on your own loopback address, and talks to
+            nothing on the internet. There is no account and no cloud. The only thing on <em>this</em>
+            page that could ever contact anyone is the analytics tag, and it loads only if you allow it.
+          </dd>
+          <dt>Which radios does it work with?</dt>
+          <dd>
+            Any stick the Linux kernel already exposes as a V4L2 radio device at
+            <code>/dev/radio0</code>. The container cannot load a kernel module, so the driver — for one
+            common stick, <code>radio_shark</code> with <code>tea575x</code> — has to be working on the
+            host already.
+          </dd>
+          <dt>What is it written in?</dt>
+          <dd>
+            One Python file and nothing else — no pip installs, no numpy, no framework. The maths it needs
+            (a Goertzel filter for the pilot and a small FFT for the spectrum) is written out by hand.
+          </dd>
+          <dt>Can I copy it?</dt>
+          <dd>
+            Yes. It is MIT licensed — copy it, change it, ship it, sell it, keeping the copyright notice.
+            One obligation rides alongside it: the station table came from Wikipedia and stays under
+            CC BY-SA 4.0.
+          </dd>
+        </dl>
+      </section>
+
+      <section id="privacy">
+        <h2>Privacy, plainly</h2>
+        <p class="body">
+          <b>The program</b> collects nothing and sends nothing. It reads your radio device, plays the
+          audio through your own audio server, and writes your saved stations to a file you chose.
+          <b>This page</b> is where a choice exists, and it is yours: there is no analytics script in this
+          document at all — the tag is created by <code>consent.js</code> and only after you answer yes. If
+          you say no, this page makes <b>zero requests to Google</b>, and you can change your mind at any
+          time from <button class="linkbtn" data-consent-open type="button">Cookie settings</button> in
+          the footer. If you allow it, the page counts visits and nothing else: no profile is built, no
+          advertising identifier is read, and nothing is sold.
+        </p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <span class="mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64" width="22" height="22" focusable="false">
+            <rect width="64" height="64" rx="14" fill="currentColor" opacity="0.08" />
+            <path
+              d="M27 17 L14 32 L27 47 M35 17 L24 47 M37 17 L50 32 L37 47"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
+        <span><b>FM radio</b> · <a href="https://nodejavascript.com/">nodejavascript.com</a></span>
+      </div>
+      <p class="footer-links">
+        <a href="https://github.com/nodejavascript/fm-radio"
+          ><svg class="gh-star" viewBox="0 0 16 16" aria-hidden="true"
+            ><path
+              d="M8 1.4l1.98 4.2 4.42.5-3.3 3.05.9 4.45L8 11.4l-4 2.2.9-4.45L1.6 6.1l4.42-.5z"
+              ></path></svg
+          >github.com/nodejavascript/fm-radio</a
+        >
+        · <a href="https://github.com/nodejavascript/fm-radio/blob/main/LICENSE">MIT</a> ·
+        <a href="#privacy">Privacy</a> ·
+        <button class="linkbtn" data-consent-open type="button">Cookie settings</button>
+      </p>
+      <p class="copyright">© 2026 fm-radio.nodejavascript.com</p>
+    </footer>
+
+    <!-- 🔴 THE ANALYTICS TAG IS NOT IN THIS DOCUMENT. consent.js holds the measurement id
+         and creates the tag only after a yes, which is why a visitor who refuses makes no
+         request to Google at all. -->
+    <script src="./consent.js" data-ga-id="G-XXXXXXXXXX" defer></script>
+    <script src="./site.js" defer></script>
+  </body>
+</html>
