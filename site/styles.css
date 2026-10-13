@@ -51,44 +51,32 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* 🔴 THE ABSTRACT — THIS SITE'S OWN DRAWING, AND IT IS A DRAWING RATHER THAN A WASH: the dial's
-   graticule. A scale of fine vertical ticks with every fifth one taller and brighter, and a rule
-   across for each of those, covering the whole viewport and faded in the middle by a mask so the
-   words stay readable. Its own fixed layer — the only thing that fades a background image is a
-   mask, and a mask on <body> would fade the page's colour and its glows with it. z-index below
-   the content, pointer-events off so it can never take a click.
-   🔴 IT WAS A BAND OF FAINT TICKS IN THE LOWER THIRD, AND A COMPLIANCE RUN FAILED IT ON
-   13 OCTOBER 2026: measured on the rendered page it changed **0% of the tiles** with a peak of
-   0 grey levels, against a floor of 25% and 6 — a drawing nobody can see is not a drawing. The
-   strokes are stronger and the drawing covers the viewport now. */
+/* 🔴 THE ABSTRACT — THIS SITE'S OWN DRAWING, AND IT IS A DRAWING RATHER THAN A WASH:
+   CONCENTRIC RINGS, the circles a tuning dial is built on.
+   🔴 IT CARRIED VERTICAL TICKS UNTIL 13 OCTOBER 2026 AND GEORGE REJECTED THEM: *"those line in the
+   background conflict with the graphic below the top button. choose background without vertical
+   lines"* — and he was looking at the page, not at the code. The hero's own graphic is a band of
+   VERTICAL ticks marking the stations the scan found, so a background of vertical ticks in the same
+   amber at the same weight read as one muddle: the two drawings were competing rather than one
+   framing the other. **A BACKGROUND MUST NOT BE DRAWN IN THE SAME LANGUAGE AS THE THING IN FRONT
+   OF IT.** Rings share no line with the chart, so the chart is the only straight-line drawing on the
+   page and it reads at once. The needle that used to hang down it went with the ticks, for the same
+   reason.
+   Its own fixed layer: the only thing that fades a background image is a mask, and a mask on <body>
+   would fade the page's colour and its glows with it. z-index below the content, pointer-events off
+   so it can never take a click. */
 .dial {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   background-image:
-    /* the tall marks of the scale, every fifth tick */
-    repeating-linear-gradient(90deg, rgba(245, 165, 36, 0.34) 0 1px, transparent 1px 65px),
-    /* the fine scale */
-    repeating-linear-gradient(90deg, rgba(245, 165, 36, 0.20) 0 1px, transparent 1px 13px),
-    /* a rule for every tall mark */
-    repeating-linear-gradient(0deg, rgba(245, 165, 36, 0.14) 0 1px, transparent 1px 65px);
-  -webkit-mask-image: radial-gradient(circle at 50% 40%, transparent 0 12%, #000 36%, rgba(0, 0, 0, 0.8) 62%, transparent 92%);
-  mask-image: radial-gradient(circle at 50% 40%, transparent 0 12%, #000 36%, rgba(0, 0, 0, 0.8) 62%, transparent 92%);
-}
-
-/* the needle: the tuner's pointer, standing on the scale at the same fixed place on every visit. */
-.dial-needle {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 27%;
-  width: 2px;
-  z-index: 0;
-  pointer-events: none;
-  background: linear-gradient(180deg, transparent, rgba(245, 165, 36, 0.42) 22%, rgba(245, 165, 36, 0.42) 78%, transparent);
-  box-shadow: 0 0 26px 6px rgba(245, 165, 36, 0.14);
-  opacity: 0.75;
+    /* the fine scale of the dial */
+    repeating-radial-gradient(circle at 50% 38%, rgba(245, 165, 36, 0.20) 0 1px, transparent 1px 46px),
+    /* every fourth ring stands brighter, the way a dial's own scale marks its intervals */
+    repeating-radial-gradient(circle at 50% 38%, rgba(245, 165, 36, 0.14) 0 1px, transparent 1px 184px);
+  -webkit-mask-image: radial-gradient(circle at 50% 38%, transparent 0 9%, #000 30%, rgba(0, 0, 0, 0.85) 58%, transparent 92%);
+  mask-image: radial-gradient(circle at 50% 38%, transparent 0 9%, #000 30%, rgba(0, 0, 0, 0.85) 58%, transparent 92%);
 }
 
 main,
