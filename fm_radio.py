@@ -1463,8 +1463,17 @@ def scan_worker():
 PAGE = """<!doctype html><html lang="en"><head><meta charset="utf-8">
 <title>127.0.0.1:8150</title><meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
-:root{--bg:#0b0f14;--fg:#e8eef5;--dim:#7d8b9a;--acc:#5fa8d3;--card:#141b23;--warn:#fbbf24}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);
+/* 🔴 THE BACKGROUND IS THE SITE'S OWN COLOUR, AND ITS TREATMENT IS THE FAMILY'S — the same warm
+   near-black and the same three gradients that fade to nothing (a gradient wash, never bands),
+   so the app and its page read as one product rather than two. The accents come from the same
+   palette for the same reason: a warm background with cool blue chrome looks like two designs. */
+:root{--bg:#140f08;--fg:#f7f0e4;--dim:#a3907a;--acc:#f5a524;--card:#221a0d;--line:#3a2c14;--warn:#fbbf24}
+*{box-sizing:border-box}body{margin:0;color:var(--fg);
+background-color:var(--bg);
+background-image:radial-gradient(1100px 520px at 78% -6%,rgba(245,165,36,.13),transparent 72%),
+linear-gradient(158deg,rgba(180,105,12,.12),transparent 58%),
+linear-gradient(18deg,rgba(120,70,8,.1),transparent 52%);
+background-attachment:fixed;
 font:16px/1.45 system-ui,-apple-system,Segoe UI,sans-serif;padding:22px}
 h1{font-size:15px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:0 0 18px}
 .wrap{max-width:860px;margin:0 auto}
@@ -1474,11 +1483,11 @@ h1{font-size:15px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
 .meter canvas{width:100%;height:26px;display:block}
 .meter span{min-width:54px;text-align:right;font-size:12px}
 .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:14px 0}
-button{background:var(--card);color:var(--fg);border:1px solid #24303c;border-radius:10px;
+button{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:10px;
 padding:12px 18px;font-size:16px;cursor:pointer}
-button:hover{border-color:#3a4a5c}button.big{font-size:22px;padding:12px 26px}
-button.on{background:var(--acc);color:#06131d;border-color:var(--acc);font-weight:700}
-input{background:var(--card);color:var(--fg);border:1px solid #24303c;border-radius:10px;
+button:hover{border-color:#5a4520}button.big{font-size:22px;padding:12px 26px}
+button.on{background:var(--acc);color:#1a1103;border-color:var(--acc);font-weight:700}
+input{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:10px;
 padding:12px;font-size:18px;width:110px;text-align:center}
 .pgh{color:var(--fg);font-size:13px;max-width:780px;margin:14px auto 0;text-align:left;line-height:1.5}
 .prog{max-width:780px;margin:12px auto 2px}
@@ -1489,9 +1498,9 @@ color:var(--dim);font-size:12px;padding:3px 0}
 .pgrow.now{color:var(--fg)}.pgrow.now .pgl{font-weight:700}.pgv{text-align:right}
 @media(max-width:800px){.pgrow{grid-template-columns:1fr 120px 46px}}
 .list{display:flex;gap:8px;flex-wrap:wrap}
-.chip{background:var(--card);border:1px solid #24303c;border-radius:99px;padding:8px 14px;cursor:pointer}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:99px;padding:8px 14px;cursor:pointer}
 .chip:hover{border-color:var(--acc)}.chip.cur{border-color:var(--acc);color:var(--acc);font-weight:700}
-.chip.hi{border-color:#3f6f92}.chip.lo{opacity:.55}
+.chip.hi{border-color:#8a6320}.chip.lo{opacity:.55}
 .chip x{color:var(--dim);margin-left:8px}.chip .cl{color:var(--dim);font-style:normal;font-size:12px;margin-left:6px}
 /* 🔴 A LIST, NOT A BAG OF CHIPS: frequency, call sign and the genres, one
    station per line, in frequency order. The frequency column is a fixed width and the digits are
@@ -1505,16 +1514,16 @@ color:var(--dim);font-size:12px;padding:3px 0}
 #sthi,#stlo{display:flex;flex-direction:column;flex-wrap:nowrap;gap:6px;align-items:stretch}
 #sthi .strow,#stlo .strow{width:100%}
 .strow{display:grid;grid-template-columns:62px 118px minmax(0,1fr) auto;gap:10px;align-items:center;
-background:var(--card);border:1px solid #24303c;border-left:3px solid #24303c;border-radius:10px;
+background:var(--card);border:1px solid var(--line);border-left:3px solid var(--line);border-radius:10px;
 padding:8px 12px;cursor:pointer;font-size:14px}
 .strow:hover{border-color:var(--acc);border-left-color:var(--acc)}
 .strow.cur{border-color:var(--acc);border-left-color:var(--acc)}
-.strow.hi{border-left-color:#3f6f92}
+.strow.hi{border-left-color:#8a6320}
 .strow.lo{opacity:.62}
 .strow .fq{font-variant-numeric:tabular-nums;font-weight:700;letter-spacing:.2px}
-.strow .cs{color:#9fd3ff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.strow .cs{color:#f2c078;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .strow .gn{display:flex;gap:6px;flex-wrap:wrap;min-width:0}
-.strow .gt{background:#1b2530;border:1px solid #2b3a49;border-radius:99px;padding:1px 9px;
+.strow .gt{background:#2a2013;border:1px solid #3d2f18;border-radius:99px;padding:1px 9px;
 font-size:12px;font-style:normal;color:var(--dim);white-space:nowrap}
 .strow .ev{color:var(--dim);font-size:12px;text-align:right;white-space:nowrap}
 /* THE VOLUME SLIDER. It sets the RADIO's own capture level, not the machine's speaker volume, so
@@ -1527,15 +1536,15 @@ accent-color:var(--acc);cursor:pointer}
 text-align:right}
 .note{color:var(--dim);font-size:13px;text-align:center;margin-top:6px}
 h2{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:26px 0 10px}
-#cv{width:100%;height:200px;display:block;background:var(--card);border:1px solid #24303c;border-radius:10px;cursor:crosshair}
+#cv{width:100%;height:200px;display:block;background:var(--card);border:1px solid var(--line);border-radius:10px;cursor:crosshair}
 .legend{display:flex;gap:18px;justify-content:center;color:var(--dim);font-size:12px;margin-top:8px}
-#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:26px;background:#141b23;
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:26px;background:#221a0d;
 border:1px solid var(--acc);color:var(--fg);padding:12px 20px;border-radius:12px;font-size:15px;
 opacity:0;transition:opacity .3s;pointer-events:none;max-width:520px;text-align:center;z-index:9}
 #toast.show{opacity:1}
-#mo{position:fixed;inset:0;background:rgba(3,6,9,.72);display:flex;align-items:center;
+#mo{position:fixed;inset:0;background:rgba(10,7,3,.72);display:flex;align-items:center;
 justify-content:center;z-index:10}#mo[hidden]{display:none}
-#mo .box{background:#141b23;border:1px solid #2d3a48;border-radius:14px;padding:22px 24px;max-width:420px}
+#mo .box{background:#221a0d;border:1px solid #3d2f18;border-radius:14px;padding:22px 24px;max-width:420px}
 #mo h3{margin:0 0 8px;font-size:17px}#mo p{margin:0 0 16px;color:var(--dim);font-size:14px}
 .sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:middle}
 </style></head><body><div class="wrap">
@@ -1563,8 +1572,8 @@ justify-content:center;z-index:10}#mo[hidden]{display:none}
 <div id="pg" class="prog"></div>
 <canvas id="cv" onclick="clickChart(event)"></canvas>
 <div class="legend">
-  <span><i class="sw" style="background:#5fa8d3"></i>pass 1 &mdash; every channel, once</span>
-  <span><i class="sw" style="background:#b39ddb"></i>pass 2 &mdash; best frequency at each marker</span>
+  <span><i class="sw" style="background:#f5a524"></i>pass 1 &mdash; every channel, once</span>
+  <span><i class="sw" style="background:#e8c07d"></i>pass 2 &mdash; best frequency at each marker</span>
   <span><i class="sw" style="background:#ffd166"></i>pass 3 &mdash; quality, least static</span>
   <span><i class="sw" style="background:#ff4d4d"></i>red line = station found</span>
   <span>high reception = 9 dB or more above the band middle, low = the rest</span>
@@ -1718,7 +1727,7 @@ function progress(q){
   const L=[['1','Pass 1 \u00b7 sweep every channel'],
            ['2','Pass 2 \u00b7 measure the licensed carriers'],
            ['3','Pass 3 \u00b7 re-check each carrier']];
-  const C={1:'#5fa8d3',2:'#b39ddb',3:'#ffd166'};
+  const C={1:'#f5a524',2:'#e8c07d',3:'#ffd166'};
   let h='';
   for(const [k,label] of L){
     const f=Math.max(0,Math.min(1,p[k]||0)), now=run&&String(q.phase)===k;
@@ -1728,7 +1737,7 @@ function progress(q){
   }
   const t=Math.max(0,Math.min(1,p.total||0));
   h+='<div class="pgrow tot"><span class="pgl">Total \u00b7 all three passes</span>'
-   +'<span class="pgt"><i style="width:'+(t*100).toFixed(1)+'%;background:#e8eef5"></i></span>'
+   +'<span class="pgt"><i style="width:'+(t*100).toFixed(1)+'%;background:#f7f0e4"></i></span>'
    +'<span class="pgv">'+Math.round(t*100)+'%</span></div>';
   document.getElementById('pg').innerHTML=h;
   let line;
@@ -1757,19 +1766,19 @@ function draw(pts,st,base,run){
   const DY=h-pad, LO=-40, HI=-10;
   const YL=l=>DY-Math.max(0,Math.min(HI-LO,l-LO))/(HI-LO)*(DY-8);
   const thr=(base!=null)?base+4:null;
-  x.strokeStyle='#24303c';x.fillStyle='#7d8b9a';x.font='10px system-ui';x.lineWidth=1;
+  x.strokeStyle='#3a2c14';x.fillStyle='#a3907a';x.font='10px system-ui';x.lineWidth=1;
   for(let f=88;f<=108;f+=1){                        // 1 MHz minors, 2 MHz labelled
-    const px=Math.round(X(f,w))+.5;x.strokeStyle=(f%2)?'#161d25':'#24303c';
+    const px=Math.round(X(f,w))+.5;x.strokeStyle=(f%2)?'#241b0e':'#3a2c14';
     x.beginPath();x.moveTo(px,0);x.lineTo(px,DY);x.stroke();
     if(!(f%2))x.fillText(f,px+3,h-4);
   }
-  x.strokeStyle='#24303c';
+  x.strokeStyle='#3a2c14';
   for(let l=LO;l<=HI;l+=10){const py=Math.round(YL(l))+.5;x.beginPath();x.moveTo(0,py);x.lineTo(w,py);x.stroke();
     x.fillText(l+' dB',3,py-3);}
   if(thr!=null){x.strokeStyle='#fbbf24';x.setLineDash([4,4]);const by=Math.round(YL(thr))+.5;
     x.beginPath();x.moveTo(0,by);x.lineTo(w,by);x.stroke();x.setLineDash([]);}
   const ramp=(a,b)=>{const g=x.createLinearGradient(0,DY,0,0);g.addColorStop(0,a);g.addColorStop(1,b);return g};
-  const G1=ramp('#1b2735','#5fa8d3'), G2=ramp('#241d3d','#b39ddb'), G3=ramp('#3d2c14','#ffd166');
+  const G1=ramp('#3a2c14','#f5a524'), G2=ramp('#2f2413','#e8c07d'), G3=ramp('#3d2c14','#ffd166');
   const bw1=Math.max(3,w/100*0.92);  // pass 1 samples every real channel, so its bars are narrow
   const bw2=Math.max(2,w/200*1.04);  // passes 2 and 3 sit exactly on the real channels
   for(const p of pts){
@@ -1785,10 +1794,10 @@ function draw(pts,st,base,run){
   // while a scan runs the marker follows the pen, so the sweep is visible instead of
   // frozen at wherever the radio was last left; otherwise it is where you are tuned
   const cur=(run&&pts.length)?pts[pts.length-1][0]:(S.freq||98.1);
-  x.strokeStyle='#e8eef5';x.lineWidth=1.5;
+  x.strokeStyle='#f7f0e4';x.lineWidth=1.5;
   const cx=Math.round(X(cur,w))+.5;
   x.beginPath();x.moveTo(cx,0);x.lineTo(cx,DY);x.stroke();x.lineWidth=1;
-  x.fillStyle='#e8eef5';x.font='bold 10px system-ui';
+  x.fillStyle='#f7f0e4';x.font='bold 10px system-ui';
   x.fillText(fmt(cur),Math.min(w-32,Math.max(2,cx+3)),12);
   x.lineWidth=1.5;x.font='9px system-ui';                    // a red line marks each station found
   for(const s of st){
@@ -1851,7 +1860,7 @@ function drawMeter(){
   for(let i=0;i<N;i++){
     const hot=i>=N-8;
     x.globalAlpha=(i<lit)?1:0.12;
-    x.fillStyle=hot?'#ffd166':'#5fa8d3';
+    x.fillStyle=hot?'#ffd166':'#f5a524';
     x.fillRect(i*(sw+gap),0,sw,h);
   }
   if(pl>0){x.globalAlpha=1;x.fillStyle='#fbbf24';x.fillRect((pl-1)*(sw+gap),0,sw,3)}
