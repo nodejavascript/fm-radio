@@ -9,11 +9,73 @@ produces is short and trustworthy rather than long and partly wrong.
 What it is: a web page for a USB FM radio. Tune it, scan the band, keep the stations you like.
 One file of Python, standard library only, plus the `v4l2-ctl` and `parec`/`pactl` command-line tools.
 
+## Run it
+
+### With docker compose
+
+The compose file in this repository is the whole recipe: it builds the image, passes the tuner in,
+mounts the audio server and keeps your saved stations in a named volume.
+
 ```bash
-cp ~/.fm_radio.py ./fm_radio.py   # if you are building from the running copy
-docker compose up -d
-# then open http://127.0.0.1:8150/
+cd fm-radio
+docker compose up -d --build
+# the page is on the host at http://127.0.0.1:8150/
+docker compose logs -f          # says "FM radio page on http://0.0.0.0:8150/" when it is up
 ```
+
+Anything you would edit, you can override from the shell instead:
+
+```bash
+RADIO_PORT=9000 docker compose up -d              # host port 9000 -> the page on 9000
+RADIO_DEVICE=/dev/radio1 docker compose up -d     # a stick that landed on another node
+RADIO_SOURCE=alsa_input.usb-1234:5678-analog-stereo docker compose up -d   # name the input
+```
+
+`docker compose down` stops it and **keeps** the saved stations; `docker compose down -v` throws the
+volume away.
+
+### With plain docker
+
+No compose file needed. Build once, then run:
+
+```bash
+docker build -t fm-radio .
+docker run -d --name fm-radio \
+  --device /dev/radio0:/dev/radio0 \
+  -p 8150:8150 \
+  -e RADIO_BIND=0.0.0.0 \
+  -e RADIO_DATA=/data \
+  -e PULSE_SERVER=unix:/pulse/native \
+  -e XDG_RUNTIME_DIR=/pulse \
+  -v fm-radio-data:/data \
+  -v "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/pulse/native:/pulse/native" \
+  -v "${HOME}/.config/pulse/cookie:/root/.config/pulse/cookie:ro" \
+  --restart unless-stopped \
+  fm-radio
+```
+
+Then `docker logs fm-radio` for the start-up line, and open `http://127.0.0.1:8150/`.
+
+**`RADIO_BIND=0.0.0.0` is not optional in a container.** A published port arrives from outside the
+container's own loopback, so an app listening on `127.0.0.1` is unreachable no matter what `-p` says.
+What is exposed is decided by `-p`, not by this setting.
+
+**If your audio server does not use a cookie, leave that last `-v` out.** On a PipeWire machine
+`~/.config/pulse/cookie` often does not exist, and Docker will happily create a **directory** at the
+mount point instead — the server then reads a directory as its cookie and refuses every client. The
+socket mount alone is usually enough. Add `-e RADIO_SOURCE=…` to name the input rather than let it be
+discovered (see Settings).
+
+### Three ways it will refuse to start, and the fix
+
+| What you see | Why | The fix |
+|---|---|---|
+| `error gathering device information while adding custom device "/dev/radio0"` | Docker cannot start **at all** when a `--device` path does not exist, so this fires on any machine whose radio is unplugged or on another node | drop `--device` (compose: comment out the `devices:` line) to read the page without a radio, or point `RADIO_DEVICE` at the node `v4l2-ctl --list-devices` shows |
+| The page loads and says there is no radio | the tuner is there but the app cannot see `/dev/radio0` inside the container | add `--device`, and check the host with `ls -l /dev/radio0` |
+| The page loads, a station is found, but no sound comes out | the audio socket is not mounted, or the cookie is wrong | check the host with `ls -l ${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/pulse/native`, then see the cookie note above |
+
+Nothing is written into the image: every station you keep, and the last scan, go to `RADIO_DATA` —
+`/data`, which is the named volume — so a rebuild keeps them.
 
 ## What the host must provide
 
