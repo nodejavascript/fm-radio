@@ -9,6 +9,12 @@ produces is short and trustworthy rather than long and partly wrong.
 What it is: a web page for a USB FM radio. Tune it, scan the band, keep the stations you like.
 One file of Python, standard library only, plus the `v4l2-ctl` and `parec`/`pactl` command-line tools.
 
+![The app's whole page, top to bottom: a frequency readout of 98.1 MHz, a stereo signal bar, a banner saying no radio is connected, Play/Stop/Mute/Save buttons, a volume slider, the three-pass scan panel with an 88 to 108 MHz spectrum chart, and the High-reception and Low-reception station lists.](site/img/app.png)
+
+*The whole page at once — nothing cropped away. This is it on a machine with **no radio plugged in**:
+it says so rather than pretending, captures nothing, and shows the last scan. 16 stations held High,
+12 Low, and the log it wrote while it ran.*
+
 ## Run it
 
 ### With docker compose

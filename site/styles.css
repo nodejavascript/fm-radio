@@ -333,6 +333,31 @@ figcaption b {
   color: var(--ink);
 }
 
+.shot {
+  margin: 18px 0 8px;
+}
+
+/* the whole app, shown at a size a reader can take in rather than at the size it was captured.
+   Bounded by width, so the tall image stays inside the column. */
+.shot a {
+  display: block;
+  max-width: 680px;
+}
+
+.shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: #0a0a0a;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+}
+
+.shot img:hover {
+  border-color: var(--theme);
+}
+
 /* ---------------------------------------------------------------------- cards --- */
 .cards {
   display: grid;
