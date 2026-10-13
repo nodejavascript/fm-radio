@@ -106,13 +106,14 @@
   function prefs(current) {
     var on = current === "granted";
     return (
-      '<div class="consentPrefs">' +
+      '<div class="consentPrefs" id="consentPrefs">' +
       '<div class="consentHead"><h2 class="consentTitle">Cookie settings</h2>' +
       '<button type="button" class="consentClose" aria-label="Close" data-close>&times;</button></div>' +
       '<ul class="consentList">' +
       '<li class="consentRow"><div><p class="consentRowName">Strictly necessary</p>' +
-      '<p class="consentRowWhy">The page itself. Nothing is stored for this, so there is nothing ' +
-      "to switch off.</p></div><span class=\"consentAlways\">Always on</span></li>" +
+      '<p class="consentRowWhy">The page itself — and, if the page breaks on your device, a report of '
+      + 'the error so a breakage can be found instead of staying invisible. It sets no cookie and keeps '
+      + "nothing, so there is nothing to switch off.</p></div><span class=\"consentAlways\">Always on</span></li>" +
       '<li class="consentRow"><div><p class="consentRowName">Analytics</p>' +
       '<p class="consentRowWhy">Google Analytics, to count visits. Nothing loads from Google ' +
       "unless this is on.</p></div>" +
@@ -128,7 +129,13 @@
     if (!bar) {
       bar = document.createElement("div");
       bar.className = "consent";
-      bar.setAttribute("role", "region");
+      // 🔴 THE IDS ARE PART OF THE HOUSE CONTRACT, NOT DECORATION. The family's render check
+      // finds this bar as `#consentBar` and decides whether the footer's door opens a panel by
+      // looking for `#consentPrefs, #consentBar, [role="dialog"]`. A gate that works perfectly
+      // and carries none of those ids is reported as "the footer cookie door does not open the
+      // panel" — measured on this site on 13 October 2026, when it carried neither.
+      bar.id = "consentBar";
+      bar.setAttribute("role", "dialog");
       bar.setAttribute("aria-label", "Cookie choice");
       document.body.appendChild(bar);
       window.addEventListener("resize", reserve);

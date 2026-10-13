@@ -19,7 +19,14 @@ import os
 from PIL import Image, ImageDraw, ImageFont
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.join(os.path.dirname(HERE), "site", "img")
+ROOT = os.path.join(os.path.dirname(HERE), "site")
+# 🔴 THE ICONS LIVE AT THE SITE ROOT, NOT IN A FOLDER — measured 13 October 2026 by the SEO audit,
+# which asks for `/favicon.ico`, `/favicon-180.png`, `/favicon-32.png`, `/apple-touch-icon.png` and
+# `/favicon.svg` and reported all five missing while they sat correctly in `/img/`. That is the
+# convention every other site in the family keeps, and a crawler reads it without being told.
+# The social card stays in `img/` because it is not an icon.
+OUT = ROOT
+IMG = os.path.join(ROOT, "img")
 
 BG = (20, 15, 8)
 AMBER = (245, 165, 36)
@@ -81,7 +88,15 @@ def draw_dial(size: int) -> Image.Image:
 
 
 def svg() -> str:
-    """The same drawing as a vector, for the browsers that prefer it."""
+    """The same drawing as a vector, for the browsers that prefer it.
+
+    🔴 THE GLOW DISC STAYS, AND IT IS NOT DECORATION IN THE SET — 13 October 2026. Part 15c's
+    signature keeps a circle's CENTRE and throws its radius away, so this disc is the shape
+    `c(32.0,32.0)` and the bar must carry the same one or the two drawings count as different.
+    The bar therefore repeats it with its OWN gradient id (`gm-head`, `gm-foot`), which is safe
+    because the signature ignores fill and colour — and two elements on one page cannot share
+    an id. An earlier pass removed the disc instead, and the mark read as mismatched.
+    """
     L = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="FM radio">']
     L.append('  <defs><radialGradient id="g" cx="50%" cy="50%" r="60%">')
     L.append('    <stop offset="0" stop-color="#f5a524" stop-opacity=".22"/>')
@@ -177,13 +192,13 @@ def main() -> None:
     # iOS paints transparency black, so the touch icon is the same drawing with no alpha at all
     icon180.save(os.path.join(OUT, "apple-touch-icon.png"))
     draw_dial(32).save(os.path.join(OUT, "favicon-32.png"))
-    draw_dial(512).save(os.path.join(OUT, "icon-512.png"))
+    draw_dial(512).save(os.path.join(IMG, "icon-512.png"))
     draw_dial(256).save(
         os.path.join(OUT, "favicon.ico"), sizes=[(16, 16), (32, 32), (48, 48)]
     )
     with open(os.path.join(OUT, "favicon.svg"), "w", encoding="utf-8") as fh:
         fh.write(svg())
-    og().save(os.path.join(OUT, "og.png"))
+    og().save(os.path.join(IMG, "og.png"))
 
     for name in sorted(os.listdir(OUT)):
         p = os.path.join(OUT, name)

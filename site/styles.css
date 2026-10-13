@@ -51,50 +51,44 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* 🔴 THE ABSTRACT — THIS SITE'S OWN DRAWING, AND IT IS A DRAWING RATHER THAN A WASH: a tuning
-   scale. Two layers of fine vertical marks with taller ones every fifth, sitting in the lower
-   third of the window like the dial of a receiver, on its OWN fixed layer. It cannot be a
-   background on <body>, because the only thing that fades a background image is a mask, and a
-   mask on <body> would fade the page's colour and its glows with it. z-index below the content,
-   pointer-events off so it can never take a click. */
+/* 🔴 THE ABSTRACT — THIS SITE'S OWN DRAWING, AND IT IS A DRAWING RATHER THAN A WASH: the dial's
+   graticule. A scale of fine vertical ticks with every fifth one taller and brighter, and a rule
+   across for each of those, covering the whole viewport and faded in the middle by a mask so the
+   words stay readable. Its own fixed layer — the only thing that fades a background image is a
+   mask, and a mask on <body> would fade the page's colour and its glows with it. z-index below
+   the content, pointer-events off so it can never take a click.
+   🔴 IT WAS A BAND OF FAINT TICKS IN THE LOWER THIRD, AND A COMPLIANCE RUN FAILED IT ON
+   13 OCTOBER 2026: measured on the rendered page it changed **0% of the tiles** with a peak of
+   0 grey levels, against a floor of 25% and 6 — a drawing nobody can see is not a drawing. The
+   strokes are stronger and the drawing covers the viewport now. */
 .dial {
   position: fixed;
-  inset: auto 0 0 0;
-  height: min(46vh, 420px);
+  inset: 0;
   z-index: 0;
   pointer-events: none;
-  background-repeat: no-repeat;
   background-image:
+    /* the tall marks of the scale, every fifth tick */
+    repeating-linear-gradient(90deg, rgba(245, 165, 36, 0.34) 0 1px, transparent 1px 65px),
     /* the fine scale */
-    repeating-linear-gradient(90deg, rgba(245, 165, 36, 0.22) 0 1px, transparent 1px 15px),
-    /* the taller marks every fifth tick */
-    repeating-linear-gradient(90deg, rgba(245, 165, 36, 0.3) 0 1px, transparent 1px 75px);
-  background-size:
-    100% 62px,
-    100% 118px;
-  background-position:
-    0 bottom,
-    0 bottom;
-  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 42%, rgba(0, 0, 0, 0.7) 74%, transparent 100%);
-  mask-image: linear-gradient(180deg, transparent 0, #000 42%, rgba(0, 0, 0, 0.7) 74%, transparent 100%);
-  opacity: 0.5;
+    repeating-linear-gradient(90deg, rgba(245, 165, 36, 0.20) 0 1px, transparent 1px 13px),
+    /* a rule for every tall mark */
+    repeating-linear-gradient(0deg, rgba(245, 165, 36, 0.14) 0 1px, transparent 1px 65px);
+  -webkit-mask-image: radial-gradient(circle at 50% 40%, transparent 0 12%, #000 36%, rgba(0, 0, 0, 0.8) 62%, transparent 92%);
+  mask-image: radial-gradient(circle at 50% 40%, transparent 0 12%, #000 36%, rgba(0, 0, 0, 0.8) 62%, transparent 92%);
 }
 
-/* the needle: one bright line where a tuner's pointer would stand, with the lamp's glow on it.
-   It is bounded to the DIAL BAND rather than run down the whole window — measured on the first
-   render, where a full-height line crossed the cards and the table and read as a stray mark
-   instead of as a pointer on a scale. */
+/* the needle: the tuner's pointer, standing on the scale at the same fixed place on every visit. */
 .dial-needle {
   position: fixed;
+  top: 0;
   bottom: 0;
-  height: min(46vh, 420px);
   left: 27%;
   width: 2px;
   z-index: 0;
   pointer-events: none;
-  background: linear-gradient(180deg, transparent, rgba(245, 165, 36, 0.55) 45%, rgba(245, 165, 36, 0.7) 100%);
-  box-shadow: 0 0 26px 6px rgba(245, 165, 36, 0.16);
-  opacity: 0.6;
+  background: linear-gradient(180deg, transparent, rgba(245, 165, 36, 0.42) 22%, rgba(245, 165, 36, 0.42) 78%, transparent);
+  box-shadow: 0 0 26px 6px rgba(245, 165, 36, 0.14);
+  opacity: 0.75;
 }
 
 main,

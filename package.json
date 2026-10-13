@@ -1,0 +1,14 @@
+{
+  "name": "fm-radio",
+  "private": true,
+  "version": "1.0.0",
+  "description": "A local web page for a USB FM radio: tune it, scan the band with a 19 kHz stereo-pilot test, keep the stations you like.",
+  "license": "MIT",
+  "scripts": {
+    "serve": "python3 tools/serve.py 8155",
+    "test": "python3 tools/check-page.py && node tools/test-consent.mjs",
+    "test:e2e": "python3 tools/verify-consent.py && python3 tools/verify-consent.py --selftest",
+    "test:live": "node tools/live-check.mjs",
+    "test:all": "npm test && npm run test:e2e"
+  }
+}
